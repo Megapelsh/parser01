@@ -35,7 +35,7 @@ let link = process.env.url;
 
             try {
                 competensys = document.querySelectorAll('h4.text-semibold')
-                // console.log(competensys)
+                console.log(competensys)
                 for (let elem of competensys) {
                     competensyArr.push(elem.innerHTML)
                 }
@@ -55,56 +55,98 @@ let link = process.env.url;
         let finalRes = []
 
         // while (lang[counter] !== undefined) {
-        while (counter < 1) {
-            await page.goto(`${link}${lang[counter]}/Competency/${res[0][0]}`)
-            await page.waitForSelector('.btn-social')
-
-            let competencyObj = {}
-
-            competencyObj = {
-                lang: lang[langCounter],
-                competency: res[0][competencyCounter]
+        while (competencyCounter < 1) {
+            let competencyObj = {
+                competency: res[0][competencyCounter],
             }
+            while (langCounter < 1) {
 
-            let html = await page.evaluate(async () => {
-                page = []
+                await page.goto(`${link}${lang[langCounter]}/Competency/${res[0][competencyCounter]}`)
+                await page.waitForSelector('.btn-social')
 
+                let html = await page.evaluate(async () => {
+                    page = []
 
-                try {
-                    let data = document.querySelector('.container-fluid')
-                    console.log(data)
+                    try {
+                        let data = document.querySelector('.container-fluid')
+                        console.log(data)
 
-                    let title = data.querySelector('h5').innerText
-                    let description = data.querySelector('.padding-xs-vr p').innerText
-                    let BehavorialExamples = () => {
-                        let BehavorialExamplesGeneral = () => {
+                        let title = data.querySelector('h5').innerText
+                        let description = data.querySelector('.padding-xs-vr p').innerText
+                        let BehavorialExamples = () => {
+                            let BehavorialExamplesGeneral = () => {
+                                let arr = []
+                                let divs = data.querySelectorAll('#generalBehaviouralExamples .list-group-item')
+                                // console.log(divs)
+                                divs.forEach(item => {
+                                    arr.push(item.innerText)
+                                })
+                                return arr
+                            }
+                            let BehavorialExamplesOperational = () => {
+                                let arr = []
+                                let divs = data.querySelectorAll('#operationalBehaviouralExamples .list-group-item')
+                                divs.forEach(item => {
+                                    arr.push(item.innerText)
+                                })
+                                return arr
+                            }
+                            let BehavorialExamplesTactical = () => {
+                                let arr = []
+                                let divs = data.querySelectorAll('#tacticalBehaviouralExample .list-group-item')
+                                divs.forEach(item => {
+                                    arr.push(item.innerText)
+                                })
+                                return arr
+                            }
+                            let BehavorialExamplesStrategical = () => {
+                                let arr = []
+                                let divs = data.querySelectorAll('#strategicalBehaviouralExample .list-group-item')
+                                divs.forEach(item => {
+                                    arr.push(item.innerText)
+                                })
+                                return arr
+                            }
+
+                            let obj = {
+                                general: BehavorialExamplesGeneral(),
+                                operational: BehavorialExamplesOperational(),
+                                tactical: BehavorialExamplesTactical(),
+                                strategical: BehavorialExamplesStrategical(),
+                            }
+                            return obj
+                        }
+
+                        let DevelopmentPotential = () => {
                             let arr = []
-                            let divs = data.querySelectorAll('#generalBehaviouralExamples .list-group-item')
-                            // console.log(divs)
+                            let divs = data.querySelectorAll('#accordion_developmentPotential .list-group-item')
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
                             return arr
                         }
-                        let BehavorialExamplesOperational = () => {
+
+                        let InteviewQuestions = () => {
                             let arr = []
-                            let divs = data.querySelectorAll('#operationalBehaviouralExamples .list-group-item')
+                            let divs = data.querySelectorAll('#accordion_interviewQuestions .list-group-item')
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
                             return arr
                         }
-                        let BehavorialExamplesTactical = () => {
+
+                        let DevelopmentActivity = () => {
                             let arr = []
-                            let divs = data.querySelectorAll('#tacticalBehaviouralExample .list-group-item')
+                            let divs = data.querySelectorAll('#accordion_developmentActivity .list-group-item')
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
                             return arr
                         }
-                        let BehavorialExamplesStrategical = () => {
+
+                        let CoachingAdvice = () => {
                             let arr = []
-                            let divs = data.querySelectorAll('#strategicalBehaviouralExample .list-group-item')
+                            let divs = data.querySelectorAll('#accordion_coachingAdvice .list-group-item')
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
@@ -112,75 +154,45 @@ let link = process.env.url;
                         }
 
                         let obj = {
-                            general: BehavorialExamplesGeneral(),
-                            operational: BehavorialExamplesOperational(),
-                            tactical: BehavorialExamplesTactical(),
-                            strategical: BehavorialExamplesStrategical(),
+                            title: title,
+                            description: description,
+                            BehavorialExamples: BehavorialExamples(),
+                            DevelopmentPotential: DevelopmentPotential(),
+                            InteviewQuestions: InteviewQuestions(),
+                            DevelopmentActivity: DevelopmentActivity(),
+                            CoachingAdvice: CoachingAdvice(),
                         }
+
+                        console.log(obj)
                         return obj
                     }
-
-                    let DevelopmentPotential = () => {
-                        let arr = []
-                        let divs = data.querySelectorAll('#accordion_developmentPotential .list-group-item')
-                        divs.forEach(item => {
-                            arr.push(item.innerText)
-                        })
-                        return arr
+                    catch (e) {
+                        console.log(e)
                     }
 
-                    let InteviewQuestions = () => {
-                        let arr = []
-                        let divs = data.querySelectorAll('#accordion_interviewQuestions .list-group-item')
-                        divs.forEach(item => {
-                            arr.push(item.innerText)
-                        })
-                        return arr
-                    }
+                }, {waitUntil: '.btn-social'})
 
-                    let DevelopmentActivity = () => {
-                        let arr = []
-                        let divs = data.querySelectorAll('#accordion_developmentActivity .list-group-item')
-                        divs.forEach(item => {
-                            arr.push(item.innerText)
-                        })
-                        return arr
-                    }
+                console.log(html)
+                console.log(lang[langCounter])
 
-                    let CoachingAdvice = () => {
-                        let arr = []
-                        let divs = data.querySelectorAll('#accordion_coachingAdvice .list-group-item')
-                        divs.forEach(item => {
-                            arr.push(item.innerText)
-                        })
-                        return arr
-                    }
+                competencyObj[lang[langCounter]] = html
 
-                    let obj = {
-                        title: title,
-                        description: description,
-                        BehavorialExamples: BehavorialExamples(),
-                        DevelopmentPotential: DevelopmentPotential(),
-                        InteviewQuestions: InteviewQuestions(),
-                        DevelopmentActivity: DevelopmentActivity(),
-                        CoachingAdvice: CoachingAdvice(),
-                    }
+                // finalRes.push(html)
 
-                    competencyObj
-                    console.log(obj)
-                }
-                catch (e) {
-                    console.log(e)
-                }
+                langCounter++
 
-            }, {waitUntil: '.btn-social'})
 
-            finalRes.push(html)
-
-            counter++
-
-            // console.log(finalRes)
+            }
+            finalRes.push(competencyObj)
+            competencyCounter++
         }
+        // console.log(finalRes)
+
+        fs.writeFile('competencys.json', JSON.stringify({'data': finalRes}), err => {
+            if (err) throw err
+            console.log('file is saved')
+            console.log(finalRes.length)
+        })
 
     }
     catch (e) {
@@ -188,5 +200,5 @@ let link = process.env.url;
         // await browser.close()
     }
 
-    // console.log(res)
+
 })();
