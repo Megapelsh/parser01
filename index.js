@@ -57,13 +57,15 @@ let link = process.env.url;
 
         let finalRes = []
 
-        // while (lang[counter] !== undefined) {
-        while (competencyCounter < 1) {
+        while (res[0][competencyCounter] !== undefined) {
+        // while (competencyCounter < 1) {
+            langCounter = 0
+            console.log('gathering data for ' + res[0][competencyCounter])
             let competencyObj = {
                 competency: res[0][competencyCounter],
             }
-            // while (lang[langCounter] !== undefined) {
-            while (langCounter < 1) {
+            while (lang[langCounter] !== undefined) {
+            // while (langCounter < 1) {
 
                 let url = `${link}${lang[langCounter]}/Competency/${res[0][competencyCounter]}`
                 await console.log('gathering data from')
