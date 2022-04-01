@@ -49,6 +49,9 @@ let link = process.env.url;
 
         res.push(html)
 
+        // await console.log(res)
+        await console.log('competency list was created')
+
 
         // отримуємо дані зі сторінки компетенції
 
@@ -59,9 +62,14 @@ let link = process.env.url;
             let competencyObj = {
                 competency: res[0][competencyCounter],
             }
+            // while (lang[langCounter] !== undefined) {
             while (langCounter < 1) {
 
-                await page.goto(`${link}${lang[langCounter]}/Competency/${res[0][competencyCounter]}`)
+                let url = `${link}${lang[langCounter]}/Competency/${res[0][competencyCounter]}`
+                await console.log('gathering data from')
+                await console.log(url)
+
+                await page.goto(url)
                 await page.waitForSelector('.btn-social')
 
                 let html = await page.evaluate(async () => {
@@ -73,15 +81,22 @@ let link = process.env.url;
 
                         let title = data.querySelector('h5').innerText
                         let description = data.querySelector('.padding-xs-vr p').innerText
+                        let BehavorialLevels = data.querySelectorAll('#accordion_behaviouralExamples .card-header button')
                         let BehavorialExamples = () => {
                             let BehavorialExamplesGeneral = () => {
                                 let arr = []
                                 let divs = data.querySelectorAll('#generalBehaviouralExamples .list-group-item')
-                                // console.log(divs)
                                 divs.forEach(item => {
                                     arr.push(item.innerText)
                                 })
-                                return arr
+
+                                let obj = {
+                                    title: BehavorialLevels[0].innerText.trim(),
+                                    data: arr
+                                }
+
+                                return obj
+
                             }
                             let BehavorialExamplesOperational = () => {
                                 let arr = []
@@ -89,7 +104,14 @@ let link = process.env.url;
                                 divs.forEach(item => {
                                     arr.push(item.innerText)
                                 })
-                                return arr
+
+                                let obj = {
+                                    title: BehavorialLevels[1].innerText.trim(),
+                                    data: arr
+                                }
+
+                                return obj
+
                             }
                             let BehavorialExamplesTactical = () => {
                                 let arr = []
@@ -97,7 +119,12 @@ let link = process.env.url;
                                 divs.forEach(item => {
                                     arr.push(item.innerText)
                                 })
-                                return arr
+                                let obj = {
+                                    title: BehavorialLevels[2].innerText.trim(),
+                                    data: arr
+                                }
+
+                                return obj
                             }
                             let BehavorialExamplesStrategical = () => {
                                 let arr = []
@@ -105,14 +132,22 @@ let link = process.env.url;
                                 divs.forEach(item => {
                                     arr.push(item.innerText)
                                 })
-                                return arr
+                                let obj = {
+                                    title: BehavorialLevels[3].innerText.trim(),
+                                    data: arr
+                                }
+
+                                return obj
                             }
 
                             let obj = {
-                                general: BehavorialExamplesGeneral(),
-                                operational: BehavorialExamplesOperational(),
-                                tactical: BehavorialExamplesTactical(),
-                                strategical: BehavorialExamplesStrategical(),
+                                title: data.querySelector('.bg-success button').innerText,
+                                data: {
+                                    general: BehavorialExamplesGeneral(),
+                                    operational: BehavorialExamplesOperational(),
+                                    tactical: BehavorialExamplesTactical(),
+                                    strategical: BehavorialExamplesStrategical(),
+                                }
                             }
                             return obj
                         }
@@ -123,7 +158,13 @@ let link = process.env.url;
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
-                            return arr
+
+                            let obj = {
+                                title: data.querySelector('.panel-warning button').innerText.trim(),
+                                data: arr
+                            }
+
+                            return obj
                         }
 
                         let InteviewQuestions = () => {
@@ -132,7 +173,12 @@ let link = process.env.url;
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
-                            return arr
+                            let obj = {
+                                title: data.querySelector('.panel-danger button').innerText.trim(),
+                                data: arr
+                            }
+
+                            return obj
                         }
 
                         let DevelopmentActivity = () => {
@@ -141,7 +187,12 @@ let link = process.env.url;
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
-                            return arr
+                            let obj = {
+                                title: data.querySelector('.panel-info button').innerText.trim(),
+                                data: arr
+                            }
+
+                            return obj
                         }
 
                         let CoachingAdvice = () => {
@@ -150,7 +201,12 @@ let link = process.env.url;
                             divs.forEach(item => {
                                 arr.push(item.innerText)
                             })
-                            return arr
+                            let obj = {
+                                title: data.querySelector('.panel-default button').innerText.trim(),
+                                data: arr
+                            }
+
+                            return obj
                         }
 
                         let obj = {
@@ -172,26 +228,18 @@ let link = process.env.url;
 
                 }, {waitUntil: '.btn-social'})
 
-                console.log(html)
-                console.log(lang[langCounter])
-
                 competencyObj[lang[langCounter]] = html
 
-                // finalRes.push(html)
-
                 langCounter++
-
-
             }
             finalRes.push(competencyObj)
             competencyCounter++
         }
-        // console.log(finalRes)
 
         fs.writeFile('competencys.json', JSON.stringify({'data': finalRes}), err => {
             if (err) throw err
             console.log('file is saved')
-            console.log(finalRes.length)
+            console.log(finalRes.length + 'elements')
         })
 
     }
